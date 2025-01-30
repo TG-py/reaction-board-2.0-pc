@@ -3,6 +3,7 @@ import random
 import time
 import pygame.freetype
 import pickle
+import math
 
 
 #sound on button press to stop confusion on multiple presses of the same button
@@ -130,19 +131,19 @@ def otherPlayerComparison(score):
             place += 1
     avg = total/len(scores)
     playerCount = len(scores)+1
-    percentageBeaten = round((len(beatenScores)/len(scores))*100)
+    percentageBeaten = 100 - math.floor(((len(beatenScores)/len(scores))*100)-0.0000001)
     scores.append(score)
     with open('scores.pk', 'wb') as scoresFile:
         pickle.dump(scores, scoresFile)
     return percentageBeaten, place, highest, total, avg, playerCount
 
 
-def showPercentageBeaten(percentageBeaten):
+def showTopPercentage(percentageBeaten):
     screen.fill([255,255,255])
     topFont = pygame.freetype.SysFont(None, winY*0.09)
     percentageFont = pygame.freetype.SysFont(None, winY*0.6)
     buttonFont = pygame.freetype.SysFont(None, winY*0.09)
-    topSurface, topRect = topFont.render("YOU SCORED BETTER THAN:", [0,0,0])
+    topSurface, topRect = topFont.render("YOU WERE IN THE TOP:", [0,0,0])
     screen.blit(topSurface, [winX*0.5-topRect[2]/2, winY*0.1-topRect[3]/2])
     percentageSurface, percentageRect = percentageFont.render(f"{percentageBeaten}%", [0,0,0])
     screen.blit(percentageSurface, [winX*0.5-percentageRect[2]/2, winY*0.4-percentageRect[3]/2])
@@ -196,7 +197,7 @@ while True:
     betweenGames(highest, total, avg, playerCount)
     timerSurfacePos = gameStart()
     buttonsPressed = game(timerSurfacePos)
-    percentageBeaten, place, highest, total, avg, playerCount = otherPlayerComparison(buttonsPressed)
+    topPercentage, place, highest, total, avg, playerCount = otherPlayerComparison(buttonsPressed)
     if gameFinished(buttonsPressed):
-        if showPercentageBeaten(percentageBeaten):
+        if showTopPercentage(topPercentage):
             showPlace(place)
