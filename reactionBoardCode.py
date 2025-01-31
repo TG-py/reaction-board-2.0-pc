@@ -34,9 +34,9 @@ def gameSetup():
     groundInPin.off()
         
     
-    return groundInPinNum, groundInPin, ledNums, leds, buttonNums, buttons, workingPins
+    return groundInPinNum, groundInPin, leds, buttons, workingPins
         
-def game(groundInPinNum, groundInPin, ledNums, leds, buttonNums, buttons, workingPins):
+def game(groundInPinNum, groundInPin, leds, buttons, workingPins):
     
     startTime = time.time() + 15
     breakVar = False
@@ -75,5 +75,5 @@ def game(groundInPinNum, groundInPin, ledNums, leds, buttonNums, buttons, workin
     for i in leds:
         i.off()
 
-groundInPinNum, groundInPin, ledNums, leds, buttonNums, buttons, workingPins = gameSetup()
-game(groundInPinNum, groundInPin, ledNums, leds, buttonNums, buttons, workingPins)
+groundInPinNum, groundInPin, leds, buttons, workingPins = gameSetup()
+game(groundInPinNum, groundInPin, leds, buttons, workingPins)
