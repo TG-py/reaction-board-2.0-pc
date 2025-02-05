@@ -8,10 +8,6 @@ import math
 
 #sound on button press to stop confusion on multiple presses of the same button
 #lights show on buttons when not being played to draw people in
-#colours on screen
-#find a way to make the leaderboard experience better or remove leaderboard
-#make everything intuitive to everyone
-#maybe switch to number of buttons pressed in a min to make it more fun instead of competitive
 
 
 def setup():
