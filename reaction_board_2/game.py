@@ -5,7 +5,7 @@ from gpiozero import LED, Button
 from real_board_switch import realBoardSwitch
 from update_timer import updateTimer
 
-def game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens, gameTime, realBoard):
+def game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens, gameTime, realBoard, screen):
     
     buttonsPressed = 0
     startTime = time.time() + gameTime
@@ -37,18 +37,18 @@ def game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum
         
         leds[buttonNum].on()
         while not realBoardSwitch(buttons[buttonNum].is_pressed, realBoard):
-            if 0 > updateTimer(startTime, timerScreens):
+            if 0 > updateTimer(startTime, timerScreens, screen):
                 breakVar = True
                 break
         if breakVar: break
         buttonsPressed += 1
         leds[buttonNum].off()
         while realBoardSwitch(buttons[buttonNum].is_pressed, realBoard):
-            if 0 > updateTimer(startTime, timerScreens):
+            if 0 > updateTimer(startTime, timerScreens, screen):
                 breakVar = True
                 break
         if breakVar: break
-    timer = updateTimer(startTime, timerScreens)
+    timer = updateTimer(startTime, timerScreens, screen)
     for i in leds:
         i.off()
     return buttonsPressed

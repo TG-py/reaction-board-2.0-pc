@@ -22,7 +22,7 @@ gameScreen, timerScreens, youScoredScreen, betweenGamesScreen, showPercentageScr
 while True:
     betweenGames(highest, total, avg, playerCount, *betweenGamesScreen, screen, winX, winY)
     gameStart(gameScreen, screen)
-    buttonsPressed = game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens, gameTime, realBoard)
+    buttonsPressed = game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens, gameTime, realBoard, screen)
     topPercentage, place, highest, total, avg, playerCount = otherPlayerComparison(buttonsPressed)
     if gameFinished(buttonsPressed, *youScoredScreen, screen, winX, winY):
         if showTopPercentage(topPercentage, *showPercentageScreen, screen, winX, winY):
