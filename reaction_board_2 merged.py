@@ -14,7 +14,7 @@ from gpiozero import Button, LED
 def setup():
     pygame.init()
     pygame.font.init()
-    screen = pygame.display.set_mode()
+    screen = pygame.display.set_mode(flags=pygame.FULLSCREEN)
     pygame.display.set_caption("screen")
     winX, winY = pygame.display.get_window_size()
     clock = pygame.time.Clock()
@@ -30,12 +30,14 @@ def setup():
     avg = total/len(scores)
     playerCount = len(scores)
     gameTime = 30
+    realBoard = False
 
-    return screen, winX, winY, highest, total, avg, playerCount, gameTime
+    return screen, winX, winY, highest, total, avg, playerCount, gameTime, realBoard
 
 
 def loading():
     screen.fill([255,255,255])
+    pygame.display.flip()
 
 
 def preRender(gameTime):
@@ -109,7 +111,7 @@ def preRender(gameTime):
     placeScreen.blit(buttonTextSurface, [winX*0.5-buttonTextSurfaceRect[2]/2, winY*0.85-buttonTextSurfaceRect[3]/2])
 
     return (gameScreen,
-            timerScreens
+            timerScreens,
             [youScoredScreen, scoreFont, youScoredScreenContinueButton],
             [betweenGamesScreen, infoFont, startButton],
             [showTopPercentageScreen, percentageFont, showTopPercentageContinueButton],
@@ -131,39 +133,45 @@ def gameSetup():
         buttons.append(Button(buttonNums[i]))
     
     workingPins = []
+    workingPinsNum = 0
     for i in range(len(leds)):
         leds[i].on()
         workingPins.append(groundInPin.is_pressed)
+        if groundInPin.is_pressed: workingPinsNum += 1
         leds[i].off()
-    print(workingPins)
     
     groundInPin.close()
     groundInPin = LED(groundInPinNum)
     groundInPin.off()
         
     
-    return groundInPinNum, groundInPin, leds, buttons, workingPins
+    return groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum
 
 
 def gameStart(gameScreen):
     screen.blit(gameScreen, [0,0], gameScreen.get_rect())
 
 
-def game(groundInPinNum, groundInPin, leds, buttons, workingPins, timerScreens):
+def game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens):
     
     buttonsPressed = 0
     startTime = time.time() + gameTime
     breakVar = False
     
     while True:
-        buttonNum = random.randint(0, 2)
+        buttonNum = random.randint(0, workingPinsNum)
+        k = 0
+
+        for i in range(len(workingPins)):
+            if workingPins[i]: k+=1
+            if k == buttonNum:
+                buttonNum = i
         
         groundInPin.close()
         groundInPin = Button(groundInPinNum, pull_up=False)
         
         leds[buttonNum].on()
         pinWorking = groundInPin.is_pressed
-        print(pinWorking)
         leds[buttonNum].off()
 
         groundInPin.close()
@@ -175,14 +183,14 @@ def game(groundInPinNum, groundInPin, leds, buttons, workingPins, timerScreens):
         
         
         leds[buttonNum].on()
-        while not buttons[buttonNum].is_pressed:
+        while not realBoardSwitch(buttons[buttonNum].is_pressed):
             if 0 > updateTimer(startTime, timerScreens):
                 breakVar = True
                 break
         if breakVar: break
         buttonsPressed += 1
         leds[buttonNum].off()
-        while buttons[buttonNum].is_pressed:
+        while realBoardSwitch(buttons[buttonNum].is_pressed):
             if 0 > updateTimer(startTime, timerScreens):
                 breakVar = True
                 break
@@ -191,6 +199,11 @@ def game(groundInPinNum, groundInPin, leds, buttons, workingPins, timerScreens):
     for i in leds:
         i.off()
     return buttonsPressed
+
+
+def realBoardSwitch(inputVar):
+    if realBoard: return not inputVar
+    else: return inputVar
 
 
 def updateTimerMilliseconds(startTime, timerSurfacePos, timerFont):
@@ -304,14 +317,14 @@ def showPlace(place, placeScreen, placeFont, continueButton):
     return False
 
 
-screen, winX, winY, highest, total, avg, playerCount, gameTime = setup()
+screen, winX, winY, highest, total, avg, playerCount, gameTime, realBoard = setup()
 loading()
-groundInPinNum, groundInPin, leds, buttons, workingPins = gameSetup()
+groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum = gameSetup()
 gameScreen, timerScreens, youScoredScreen, betweenGamesScreen, showPercentageScreen, placeScreen = preRender(gameTime)
 while True:
     betweenGames(highest, total, avg, playerCount, *betweenGamesScreen)
     gameStart(gameScreen)
-    buttonsPressed = game(groundInPinNum, groundInPin, leds, buttons, workingPins, timerScreens)
+    buttonsPressed = game(groundInPinNum, groundInPin, leds, buttons, workingPins, workingPinsNum, timerScreens)
     topPercentage, place, highest, total, avg, playerCount = otherPlayerComparison(buttonsPressed)
     if gameFinished(buttonsPressed, *youScoredScreen):
         if showTopPercentage(topPercentage, *showPercentageScreen):
