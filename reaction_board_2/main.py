@@ -1,10 +1,3 @@
-import pygame
-import random
-import time
-import pygame.freetype
-import pickle
-import math
-
 from setup import setup
 from loading import loading
 from pre_render import preRender
